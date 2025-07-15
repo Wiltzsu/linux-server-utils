@@ -34,6 +34,8 @@ linux-server-utils/
 - Target environment: **Ubuntu/Debian-based systems**
 - Tested on Ubuntu 22.04 LTS
 
+_Note: Some commands or paths (like PHP config locations) may vary slightly between different distributions._
+
 ---
 
 ## Getting Started
