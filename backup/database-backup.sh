@@ -8,7 +8,7 @@ DB_USER="your_db_user"
 DB_NAME="your_db_name"
 
 # Email to send alert to
-ALERT_EMAIL="william.lonnberg@gmail.com"
+ALERT_EMAIL="your@email.com"
 
 # Collect the current timestamp
 TIMESTAMP=$(date +"%F_%H-%M-%S")

@@ -65,7 +65,6 @@ scp root@IP:/home/db_backups/mydatabase_db_backup_2025-05-10_12-20-46.sql.gz /yo
 
 # Unzip the file
 gunzip mydatabase_db_backup_2025-05-10_12-20-46.sql.gz
-
 ```
 
 ---
