@@ -1,6 +1,6 @@
 # MySQL Automated Backup Script
 
-This script automates the process of backing up a MySQL database, compressing the backup, and cleaning up old backup files. It is designed to be run as a scheduled cron job and will send an email alert if any step fails. Email alerts are set up using Postfix, which you can install with the help of these instructions.
+This script automates the process of backing up a MySQL database, compressing the backup, and cleaning up old backup files. It is designed to be run as a scheduled cron job and will send an email alert if any step fails. Email alerts are set up using Postfix, which you can install on your server with the help of [these][] instructions.
 
 ---
 
@@ -12,16 +12,12 @@ This script automates the process of backing up a MySQL database, compressing th
 - **Email alerts** sent on any failure (backup, compression, or cleanup)
 - **Silent on success** (no email or output unless there is a problem)
 
----
-
 ## How It Works
 
 1. **Creates a timestamped backup** of the specified MySQL database.
 2. **Compresses** the backup file to save disk space.
 3. **Deletes old backups** (older than 7 days) to manage storage.
 4. **Sends an email alert** to the configured address if any step fails.
-
----
 
 ## Usage
 
@@ -49,7 +45,7 @@ This script automates the process of backing up a MySQL database, compressing th
   _"gzip compression failed for /home/db_backups/mydatabase_db_backup_2025-07-15_03-00-01.sql on myserver at 2025-07-15_03-00-01"_
 
 - **Cleanup failed:**  
-  _"Failed to delete old backups for mydatabae on myserver at 2025-07-15_03-00-01"_
+  _"Failed to delete old backups for mydatabase on myserver at 2025-07-15_03-00-01"_
 
 ---
 
