@@ -18,6 +18,36 @@ sudo netstat -tulpen | grep mysql
 tcp 0 0 0.0.0.0:3306 0.0.0.0:* LISTEN
 ```
 
+If you see `127.0.0.1:3306`, MySQL is only listening locally and will not accept remote connections.
+
+---
+
+### Fix: Update MySQL Configuration
+
+Edit the MySQL config file:
+
+```bash
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+```
+
+Find the line:
+
+```ini
+bind-address = 127.0.0.1
+```
+
+Change it to:
+
+```ini
+bind-address = 0.0.0.0
+```
+
+After saving the file, restart MySQL to apply changes:
+
+```bash
+sudo systemctl restart mysql
+```
+
 ---
 
 ## 2. Allow Port 3306 in Hetzner Cloud Firewall
