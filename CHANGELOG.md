@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - Added `monitoring/server-monitoring/server-resources.sh`: Script to monitor server load, disk, and RAM with email alerts.
 - Added and extended `monitoring/server-monitoring/README.md` with detailed usage, configuration, and troubleshooting instructions for the monitoring script.
 - Added `docs/enable-remote-mysql-access.md`: Step-by-step guide for enabling secure remote MySQL access (Hetzner/cloud), including layered firewall and MySQL user restrictions.
+- **Added `docs/ufw-basic-setup.md`: Clear, step-by-step guide for basic UFW firewall setup and best practices.**
 - Improved documentation:
   - Clarified project goals in `README.md` to reflect personal and public utility.
   - Enhanced `docs/install-postfix-mailutils.md` and other docs for clarity and completeness.
