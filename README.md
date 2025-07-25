@@ -1,6 +1,6 @@
 # Linux Server Utilities
 
-This repository is a collection of Linux server-related tools, scripts, and configuration instructions that I use in my own servers and projects. This includes everything from PHP configurations to database backup scripts.
+This repository is a collection of Linux server-related tools, scripts, and other configuration instructions that I have used with my own servers and projects.
 
 The goal is to provide a structured, reusable, and documented set of utilities for everyday sysadmin tasks.
 
@@ -26,7 +26,6 @@ linux-server-utils/
 - Configuration guides for PHP, Nginx, and other services  
 - Basic firewall setup examples  
 - Easy-to-understand layout with folder-based categorization
-
 
 ## 🛠️ Requirements & Compatibility
 

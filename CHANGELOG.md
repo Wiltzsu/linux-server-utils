@@ -2,9 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.1.0] - 2025-07-25
 
-- Ongoing improvements and new utilities.
+- Added `monitoring/server-monitoring/server-resources.sh`: Script to monitor server load, disk, and RAM with email alerts.
+- Added and extended `monitoring/server-monitoring/README.md` with detailed usage, configuration, and troubleshooting instructions for the monitoring script.
+- Added `docs/enable-remote-mysql-access.md`: Step-by-step guide for enabling secure remote MySQL access (Hetzner/cloud), including layered firewall and MySQL user restrictions.
+- Improved documentation:
+  - Clarified project goals in `README.md` to reflect personal and public utility.
+  - Enhanced `docs/install-postfix-mailutils.md` and other docs for clarity and completeness.
 
 ---
 
@@ -24,12 +29,6 @@ All notable changes to this project will be documented in this file.
   - `docs/install-postfix.md` for setting up Postfix and mailutils with Gmail relay
 - Project structure and initial directory layout.
 - Placeholder scripts and documentation.
-
-### Changed
-- N/A
-
-### Fixed
-- N/A
 
 ---
 
