@@ -11,11 +11,8 @@ The goal is to provide a structured, reusable, and documented set of utilities f
 ```
 linux-server-utils/
 ├── backup/              # Backup scripts (e.g. databases, files)
-├── webserver/           # Nginx, PHP, and web server configs
-├── users/               # User and permission management
-├── firewall/            # Firewall setup and rules
 ├── docs/                # Step-by-step guides and notes
-├── LICENSE
+├── monitoring/          # Monitoring script (PHP, server)
 ├── README.md
 └── CHANGELOG.md
 ```
@@ -31,7 +28,7 @@ linux-server-utils/
 
 - Scripts are written in **Bash**
 - Target environment: **Ubuntu/Debian-based systems**
-- Tested on Ubuntu 22.04 LTS
+- Tested on Ubuntu 24.04 LTS
 
 _Note: Some commands or paths (like PHP config locations) may vary slightly between different distributions._
 
