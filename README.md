@@ -6,7 +6,7 @@ The goal is to provide a structured, reusable, and documented set of utilities f
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 linux-server-utils/
@@ -24,7 +24,7 @@ linux-server-utils/
 - Basic firewall setup examples  
 - Easy-to-understand layout with folder-based categorization
 
-## 🛠️ Requirements & Compatibility
+## Requirements & Compatibility
 
 - Scripts are written in **Bash**
 - Target environment: **Ubuntu/Debian-based systems**
@@ -47,5 +47,5 @@ cd linux-server-utils
 chmod +x backup/backup-db.sh
 ```
 
-## 📜 License
+## License
 MIT — feel free to use, modify, and share.
