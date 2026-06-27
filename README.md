@@ -1,4 +1,4 @@
-# Linux Server Utilities
+# Linux server utilities
 
 This repository is a collection of Linux server-related tools, scripts, and other configuration instructions that I have used with my own servers and projects.
 
@@ -6,7 +6,7 @@ The goal is to provide a structured, reusable, and documented set of utilities f
 
 ---
 
-## Repository Structure
+## Repository structure
 
 ```
 linux-server-utils/
@@ -24,7 +24,7 @@ linux-server-utils/
 - Basic firewall setup examples  
 - Easy-to-understand layout with folder-based categorization
 
-## Requirements & Compatibility
+## Requirements & compatibility
 
 - Scripts are written in **Bash**
 - Target environment: **Ubuntu/Debian-based systems**
@@ -34,7 +34,7 @@ _Note: Some commands or paths (like PHP config locations) may vary slightly betw
 
 ---
 
-## Getting Started
+## Getting started
 
 Clone this repository and start using or adapting the scripts as needed:
 ```

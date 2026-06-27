@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-06-27
+
+### Added
+- **Added `user/create-user.sh`**: Interactive script to create a new sudo user with login password and SSH key setup.
+  - Prompts for username, login password, and SSH key passphrase with validation
+  - Creates user with home directory and bash shell, adds to sudo group
+  - Generates ed25519 SSH key pair and installs public key for key-only SSH login
+  - Prints connection instructions including scp command and optional SSH config entry
+
+---
+
 ## [1.2.0] - 2025-11-08
 
 ### Added
