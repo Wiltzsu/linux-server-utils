@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.1] - 2026-07-08
+
+### Removed
+- **`docs/hardening-ubuntu-server-blog-post.md`**: Removed blog draft; use `docs/server-hardening.md` as the canonical guide.
+
+---
+
 ## [1.4.0] - 2026-07-08
 
 ### Added
