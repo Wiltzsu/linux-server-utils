@@ -17,6 +17,7 @@ linux-server-utils/
 ├── docs/
 │   ├── enable-remote-mysql-access.md
 │   ├── install-postfix-mailutils.md
+│   ├── server-hardening.md
 │   └── ufw-basic-setup.md
 ├── monitoring/
 │   ├── php-error-monitoring/
@@ -71,6 +72,7 @@ See [`backup/database-backup/README.md`](backup/database-backup/README.md) for c
 
 | Guide | Description |
 |-------|-------------|
+| [`docs/server-hardening.md`](docs/server-hardening.md) | SSH hardening, UFW audit, MySQL localhost, unattended-upgrades, fail2ban |
 | [`docs/install-postfix-mailutils.md`](docs/install-postfix-mailutils.md) | Postfix and mailutils setup for email alerts |
 | [`docs/ufw-basic-setup.md`](docs/ufw-basic-setup.md) | Basic UFW firewall setup |
 | [`docs/enable-remote-mysql-access.md`](docs/enable-remote-mysql-access.md) | Secure remote MySQL access (firewall + user restrictions) |
