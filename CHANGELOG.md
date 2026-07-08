@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.3] - 2026-07-08
+
+### Changed
+- **`docs/server-hardening.md`**: Added brief finishing touches section (provider 2FA, remove server private key, PM2 boot persistence, reboot test).
+
+---
+
 ## [1.4.2] - 2026-07-08
 
 ### Changed

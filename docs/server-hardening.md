@@ -80,7 +80,7 @@ Keep `authorized_keys` — that file is required for SSH login.
 
 ## 3. Root console password (emergency access)
 
-Disabling root SSH does not remove root console access (e.g. Hetzner web console). Set and store a strong root password:
+Disabling root SSH does not remove root console access (Hetzner, DigitalOcean, and other providers offer a web-based console). Set and store a strong root password:
 
 ```bash
 sudo passwd root
@@ -354,9 +354,19 @@ Use your provider web console (see [Recovery checklist](#recovery-checklist)) to
 
 ---
 
-## 10. Other optional steps
+## 10. Finishing touches
 
-**Process manager boot persistence (PM2 example):**
+After SSH, UFW, updates, and fail2ban are in place, a few small steps complete the setup.
+
+**Provider account 2FA** — Enable two-factor authentication on your hosting panel (Hetzner Cloud, DigitalOcean, Linode, etc.). This protects web console and rescue access, which is your break-glass path when SSH is locked down.
+
+**Remove the private key from the server** — After copying it to your laptop (see [step 2](#2-create-an-admin-user)):
+
+```bash
+sudo rm -f /home/myuser/.ssh/id_ed25519
+```
+
+**Process manager boot persistence** (if you run apps under PM2):
 
 ```bash
 sudo pm2 save
@@ -365,7 +375,13 @@ sudo pm2 startup systemd
 sudo pm2 save
 ```
 
-**Provider panel:** enable 2FA and optional cloud firewall.
+**Optional reboot test** — When convenient, reboot and confirm SSH and any critical services come back:
+
+```bash
+sudo reboot
+```
+
+**Optional:** provider cloud firewall (Hetzner Cloud Firewall, DigitalOcean Cloud Firewalls) for an extra network layer in front of UFW.
 
 **Monthly maintenance:**
 
