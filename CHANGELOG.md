@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2026-07-08
+
+### Added
+- **`docs/server-hardening.md`**: Guide covering admin user setup, SSH hardening, UFW audit, MySQL localhost binding, unattended-upgrades, and fail2ban configuration.
+
+---
+
 ## [1.3.2] - 2026-07-08
 
 ### Changed
