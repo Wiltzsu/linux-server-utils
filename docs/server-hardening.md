@@ -300,7 +300,61 @@ bantime = 30m
 
 ---
 
-## 9. Optional next steps
+## 9. Optional: restrict SSH to a fixed IP
+
+An extra firewall layer: only your IP can reach port 22. Even if someone steals your private key **and** knows the passphrase, they cannot connect from their own network — the firewall drops them before SSH is reached.
+
+This stacks on top of key-only auth, a key passphrase, fail2ban, and `AllowUsers`.
+
+### When it makes sense
+
+| Situation | Recommendation |
+|-----------|----------------|
+| Stable home or office IP | Good optional hardening |
+| IP changes often (ISP, mobile) | Skip, or use a VPN with a static exit IP |
+| Travel frequently | Skip — you'll lock yourself out away from home |
+
+### Setup
+
+Find your current IP from your laptop (not the server):
+
+```bash
+curl -4 ifconfig.me
+```
+
+On the server, replace the open SSH rule with an IP-specific one:
+
+```bash
+sudo ufw delete allow OpenSSH
+sudo ufw allow from YOUR.IP to any port 22 proto tcp
+sudo ufw status verbose
+```
+
+Test in a **new terminal** before closing your current session.
+
+### Dynamic home IP
+
+If your IP changes, SSH will stop working until you update the rule. Options:
+
+- Use **provider console** to log in and run `sudo ufw allow from NEW.IP to any port 22 proto tcp`
+- Temporarily re-allow all SSH: `sudo ufw allow OpenSSH`
+- Do **not** add a changing home IP to fail2ban `ignoreip` — it has the same staleness problem
+
+### VPN with a static exit IP (middle ground)
+
+If your home IP changes but you use a VPN with a fixed exit address:
+
+1. Always connect via the VPN
+2. Allow only the VPN exit IP in UFW
+3. You get a stable firewall rule while working from different locations
+
+### Recovery if locked out
+
+Use your provider web console (see [Recovery checklist](#recovery-checklist)) to fix UFW — SSH restriction does not block console access.
+
+---
+
+## 10. Other optional steps
 
 **Process manager boot persistence (PM2 example):**
 
@@ -309,13 +363,6 @@ sudo pm2 save
 sudo pm2 startup systemd
 # run the command pm2 prints, then:
 sudo pm2 save
-```
-
-**Restrict SSH to a fixed IP** (only if your IP is stable):
-
-```bash
-sudo ufw delete allow OpenSSH
-sudo ufw allow from YOUR.IP to any port 22 proto tcp
 ```
 
 **Provider panel:** enable 2FA and optional cloud firewall.
@@ -335,7 +382,7 @@ sudo apt update && sudo apt upgrade -y
 | Locked out of SSH | Provider web console → login as root |
 | fail2ban banned your IP | Console → `sudo fail2ban-client set sshd unbanip YOUR.IP` |
 | Bad sshd_config | Console → fix file → `sudo sshd -t` → `sudo systemctl reload ssh` |
-| UFW blocked SSH | Console → `sudo ufw allow OpenSSH` or `sudo ufw disable` temporarily |
+| UFW blocked SSH | Console → `sudo ufw allow OpenSSH` or `sudo ufw allow from YOUR.IP to any port 22 proto tcp` |
 
 ---
 

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.2] - 2026-07-08
+
+### Changed
+- **`docs/server-hardening.md`**: Expanded optional SSH IP restriction section (defense-in-depth, dynamic IP tradeoffs, VPN approach).
+
+---
+
 ## [1.4.1] - 2026-07-08
 
 ### Removed
