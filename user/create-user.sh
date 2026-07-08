@@ -45,8 +45,8 @@ HOSTNAME_SHORT="$(hostname -s 2>/dev/null || hostname)"
 useradd -m -s /bin/bash "$USERNAME"
 # Set login password
 echo "$USERNAME:$LOGIN_PASS" | chpasswd
-# Add to sudo group
-usermod -aG sudo "$USERNAME"
+# Add to sudo and www-data groups (www-data for deploying/editing web files)
+usermod -aG sudo,www-data "$USERNAME"
 # SSH setup
 USER_HOME=$(getent passwd "$USERNAME" | cut -d: -f6)
 SSH_DIR="$USER_HOME/.ssh"
