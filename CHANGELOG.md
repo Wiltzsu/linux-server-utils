@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2026-07-08
+
+### Changed
+- **`user/create-user.sh`**: New users are now added to the `www-data` group in addition to `sudo`, so they can deploy and edit web files without extra setup.
+- **`README.md`**: Updated repository structure, script paths, and documentation links for all folders (`user/`, `backup/`, `monitoring/`, `docs/`).
+
+---
+
 ## [1.3.0] - 2026-06-27
 
 ### Added
