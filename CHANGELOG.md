@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] - 2026-07-08
+
+### Changed
+- **`user/create-user.sh`**: Connection instructions now use the server's public IP (with fallbacks) instead of hostname for `scp`, SSH login, and `HostName` in the optional SSH config.
+
+---
+
 ## [1.3.1] - 2026-07-08
 
 ### Changed

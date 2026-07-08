@@ -41,6 +41,13 @@ KEY_PASSPHRASE="$(random_string 16)"
 
 HOSTNAME_FQDN="$(hostname -f 2>/dev/null || hostname)"
 HOSTNAME_SHORT="$(hostname -s 2>/dev/null || hostname)"
+SERVER_IP="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for (i = 1; i <= NF; i++) if ($i == "src") { print $(i + 1); exit }}')"
+if [[ -z "$SERVER_IP" ]]; then
+  SERVER_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
+fi
+if [[ -z "$SERVER_IP" ]]; then
+  SERVER_IP="$HOSTNAME_FQDN"
+fi
 # Create user with home dir and bash shell
 useradd -m -s /bin/bash "$USERNAME"
 # Set login password
@@ -63,7 +70,7 @@ chown "$USERNAME:$USERNAME" "$AUTHORIZED_KEYS" "$PRIVATE_KEY" "$PUBLIC_KEY"
 chmod 600 "$AUTHORIZED_KEYS" "$PRIVATE_KEY"
 chmod 644 "$PUBLIC_KEY"
 LOCAL_KEY_PATH="\$HOME/.ssh/${LOCAL_KEY_NAME}"
-SSH_LOGIN="ssh -i ${LOCAL_KEY_PATH} ${USERNAME}@${HOSTNAME_FQDN}"
+SSH_LOGIN="ssh -i ${LOCAL_KEY_PATH} ${USERNAME}@${SERVER_IP}"
 cat <<EOF_OUT
 ============================================================
 USER CREATED SUCCESSFULLY
@@ -79,11 +86,11 @@ SSH login command (after copying key to your machine):
 Private key on server:
   ${PRIVATE_KEY}
 Copy key to your laptop:
-  scp root@${HOSTNAME_FQDN}:${PRIVATE_KEY} ~/.ssh/${LOCAL_KEY_NAME}
+  scp root@${SERVER_IP}:${PRIVATE_KEY} ~/.ssh/${LOCAL_KEY_NAME}
   chmod 600 ~/.ssh/${LOCAL_KEY_NAME}
 Optional ~/.ssh/config entry:
   Host ${HOSTNAME_SHORT}
-    HostName ${HOSTNAME_FQDN}
+    HostName ${SERVER_IP}
     User ${USERNAME}
     IdentityFile ~/.ssh/${LOCAL_KEY_NAME}
 Then connect with:
