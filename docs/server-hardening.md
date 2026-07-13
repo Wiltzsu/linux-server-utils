@@ -76,6 +76,8 @@ sudo rm -f /home/myuser/.ssh/id_ed25519
 
 Keep `authorized_keys` — that file is required for SSH login.
 
+For GitHub Actions deploys, create a separate passphrase-free key with [`setup-github-deploy-key.sh`](../user/setup-github-deploy-key.sh). See [platform getting started — deploy key](https://github.com/Wiltzsu/platform/blob/master/docs/getting-started.md#set-up-a-github-actions-deploy-key).
+
 ---
 
 ## 3. Root console password (emergency access)
