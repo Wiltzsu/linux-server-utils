@@ -27,7 +27,10 @@ linux-server-utils/
 │       ├── server-resources.sh
 │       └── README.md
 ├── user/
-│   └── create-user.sh
+│   ├── create-user.sh
+│   └── setup-github-deploy-key.sh
+├── web/
+│   └── setup-app-directory.sh
 ├── CHANGELOG.md
 └── README.md
 ```
@@ -49,6 +52,30 @@ sudo ./user/create-user.sh [username]
 ```
 
 The script creates a user with a home directory and `/bin/bash`, adds them to the `sudo` and `www-data` groups (for deploying/editing web files), generates SSH keys, and prints connection instructions. Log out and back in after creation so group membership takes effect.
+
+That script creates a **passphrase-protected laptop login key**. For GitHub Actions deploys, use [`setup-github-deploy-key.sh`](user/setup-github-deploy-key.sh) instead (one passphrase-free key per server, shared across app repos).
+
+| Script | Description |
+|--------|-------------|
+| [`user/setup-github-deploy-key.sh`](user/setup-github-deploy-key.sh) | Create a passphrase-free deploy key for GitHub Actions and install it in `authorized_keys` |
+
+Run as the deploy user, or as root with a username:
+
+```bash
+sudo ./user/setup-github-deploy-key.sh william
+```
+
+See [platform getting started — GitHub Actions deploy key](https://github.com/Wiltzsu/platform/blob/master/docs/getting-started.md#set-up-a-github-actions-deploy-key) for the full flow (server key → GitHub secrets → test SSH).
+
+### Web / deploy paths
+
+| Script | Description |
+|--------|-------------|
+| [`web/setup-app-directory.sh`](web/setup-app-directory.sh) | Create `/var/www/myapp` owned by `user:www-data` with group write for deploys |
+
+```bash
+sudo ./web/setup-app-directory.sh /var/www/myapp william
+```
 
 ### Backup
 
@@ -102,6 +129,8 @@ Make scripts executable before running them:
 
 ```bash
 chmod +x user/create-user.sh
+chmod +x user/setup-github-deploy-key.sh
+chmod +x web/setup-app-directory.sh
 chmod +x backup/database-backup/database-backup.sh
 chmod +x monitoring/server-monitoring/server-resources.sh
 chmod +x monitoring/php-error-monitoring/monitor-php-errors.sh

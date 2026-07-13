@@ -105,5 +105,8 @@ Notes:
       systemctl reload ssh
 Optional cleanup after copying the key:
   rm -f ${PRIVATE_KEY}
+For GitHub Actions deploys on this server, also run:
+  sudo ./user/setup-github-deploy-key.sh ${USERNAME}
+See platform getting-started.md (GitHub Actions deploy key).
 ============================================================
 EOF_OUT

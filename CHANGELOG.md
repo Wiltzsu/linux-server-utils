@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.4] - 2026-07-13
+
+### Added
+- **`user/setup-github-deploy-key.sh`**: Passphrase-free SSH key for GitHub Actions deploys (one key per server, shared across app repos).
+- **`web/setup-app-directory.sh`**: Create `/var/www/myapp` with `user:www-data` ownership and group write.
+
+### Changed
+- **`README.md`**: Document deploy key vs laptop login key and link to platform getting started.
+- **`docs/server-hardening.md`**: Cross-link to GitHub Actions deploy key setup.
+
+---
+
 ## [1.4.3] - 2026-07-08
 
 ### Changed
