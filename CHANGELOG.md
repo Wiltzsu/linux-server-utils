@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.5] - 2026-07-18
+
+### Added
+- **`web/setup-fastcgi-cache/setup-fastcgi-cache.sh`**: Enable nginx FastCGI cache for WordPress/Bedrock sites (cache path, snippets, site config patch, reload).
+- **`web/setup-fastcgi-cache/README.md`**: Usage, bypass rules, verification, and purge instructions.
+
+### Changed
+- **`README.md`**: Document FastCGI cache setup script.
+
+---
+
 ## [1.4.4] - 2026-07-13
 
 ### Added
