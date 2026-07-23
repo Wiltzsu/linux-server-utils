@@ -30,7 +30,10 @@ linux-server-utils/
 │   ├── create-user.sh
 │   └── setup-github-deploy-key.sh
 ├── web/
-│   └── setup-app-directory.sh
+│   ├── setup-app-directory.sh
+│   └── setup-fastcgi-cache/
+│       ├── setup-fastcgi-cache.sh
+│       └── README.md
 ├── CHANGELOG.md
 └── README.md
 ```
@@ -76,6 +79,16 @@ See [platform getting started — GitHub Actions deploy key](https://github.com/
 ```bash
 sudo ./web/setup-app-directory.sh /var/www/myapp william
 ```
+
+| Script | Description |
+|--------|-------------|
+| [`web/setup-fastcgi-cache/setup-fastcgi-cache.sh`](web/setup-fastcgi-cache/setup-fastcgi-cache.sh) | Enable nginx FastCGI cache for WordPress/Bedrock (PHP-FPM) with sensible bypass rules |
+
+```bash
+sudo ./web/setup-fastcgi-cache/setup-fastcgi-cache.sh /etc/nginx/sites-available/mydevsite.conf
+```
+
+See [`web/setup-fastcgi-cache/README.md`](web/setup-fastcgi-cache/README.md) for tuning, verification, and cache purge.
 
 ### Backup
 
@@ -131,6 +144,7 @@ Make scripts executable before running them:
 chmod +x user/create-user.sh
 chmod +x user/setup-github-deploy-key.sh
 chmod +x web/setup-app-directory.sh
+chmod +x web/setup-fastcgi-cache/setup-fastcgi-cache.sh
 chmod +x backup/database-backup/database-backup.sh
 chmod +x monitoring/server-monitoring/server-resources.sh
 chmod +x monitoring/php-error-monitoring/monitor-php-errors.sh
