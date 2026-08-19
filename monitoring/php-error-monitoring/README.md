@@ -1,4 +1,4 @@
-# PHP Error Monitoring with Better Stack - Complete Setup Guide
+# PHP error monitoring with Better Stack - complete setup guide
 
 ## Prerequisites
 
@@ -8,9 +8,9 @@
 
 ---
 
-## Part 1: Better Stack Configuration
+## Part 1: Better Stack configuration
 
-### Step 1: Create a Telemetry Source
+### Step 1: Create a telemetry source
 
 1. Log into Better Uptime: https://betteruptime.com
 2. Navigate to **Telemetry → Sources** (in the left sidebar)
@@ -97,7 +97,7 @@ Log file: /var/log/php-fpm/site-error.log
 ...
 ```
 
-### Step 7: Create Test Error
+### Step 7: Create test error
 
 Add a test error to your PHP log:
 
@@ -105,7 +105,7 @@ Add a test error to your PHP log:
 echo "[$(date -u '+%d-%b-%Y %H:%M:%S') UTC] PHP Fatal error: TEST - Uncaught Error: Call to undefined function test_function() in /var/www/test.php on line 42" | sudo tee -a /var/log/php-fpm/site-error.log
 ```
 
-### Step 8: Run Script to Send Test Error
+### Step 8: Run script to send test error
 
 ```bash
 sudo /usr/local/bin/monitor-fatal-errors.sh
@@ -131,9 +131,9 @@ Expected output:
 
 ---
 
-## Part 4: Automate with Cron
+## Part 4: Automate with cron
 
-### Step 10: Set up Cron job
+### Step 10: Set up cron job
 
 ```bash
 sudo crontab -e
@@ -148,7 +148,7 @@ Add this line:
 
 Save and exit.
 
-### Step 11: Verify Cron is running
+### Step 11: Verify cron is running
 
 Wait 1-2 minutes, then check:
 
@@ -162,9 +162,9 @@ sudo tail -f /var/log/php-error-monitor.log
 
 ---
 
-## Part 5: Set Up Alerts
+## Part 5: Set up alerts
 
-### Step 12: Create Alert for Critical Errors
+### Step 12: Create alert for critical errors
 
 1. Go to **Better Uptime → Telemetry** → Click on your source
 2. Click the **Alerts** tab
@@ -190,7 +190,7 @@ sudo tail -f /var/log/php-error-monitor.log
 
 4. Click "Save alert"
 
-### Step 13: Test the Alert
+### Step 13: Test the alert
 
 Add another test error:
 

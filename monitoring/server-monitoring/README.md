@@ -1,4 +1,4 @@
-# Server Resource Monitoring Script
+# Server resource monitoring script
 
 This script monitors your server’s key resources (CPU load, disk usage, and RAM usage) and sends an email alert if any threshold is exceeded.
 
@@ -56,7 +56,7 @@ If any threshold is exceeded, you will receive an email alert.
 
 ---
 
-## Scheduling with Cron
+## Scheduling with cron
 
 To run the script automatically (e.g., every 10 minutes), add a cron job:
 
@@ -83,9 +83,3 @@ Replace `/path/to/monitoring/server-monitoring/` with the actual path on your se
 
 - **Customizing checks:**  
   You can add more resource checks by extending the script.
-
----
-
-## License
-
-MIT License
