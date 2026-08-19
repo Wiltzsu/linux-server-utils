@@ -1,10 +1,10 @@
-# Basic UFW (Uncomplicated Firewall) Setup
+# Basic UFW (Uncomplicated Firewall) setup
 
 This guide covers essential UFW commands and best practices for securing your server.
 
 ---
 
-## 1. Viewing UFW Rules
+## 1. Viewing UFW rules
 
 - **Show all active rules (with details):**
   ```bash
@@ -18,7 +18,7 @@ This guide covers essential UFW commands and best practices for securing your se
 
 ---
 
-## 2. Managing Rules
+## 2. Managing rules
 
 - **Delete a specific rule by its number:**
   ```bash
@@ -28,7 +28,7 @@ This guide covers essential UFW commands and best practices for securing your se
 
 ---
 
-## 3. Allowing Common Services
+## 3. Allowing common services
 
 - **Allow SSH (port 22) from anywhere:**
   ```bash
@@ -48,7 +48,7 @@ This guide covers essential UFW commands and best practices for securing your se
 
 ---
 
-## 4. Setting Default Policies
+## 4. Setting default policies
 
 - **Deny all incoming connections by default:**
   ```bash
@@ -71,7 +71,7 @@ This guide covers essential UFW commands and best practices for securing your se
 
 ---
 
-## 6. Security Notes
+## 6. Security notes
 
 - By default, allowing SSH from anywhere is convenient, but less secure.  
   If your IP is static, restrict SSH access to your IP:

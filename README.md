@@ -14,4 +14,4 @@ _Note: Some commands or paths (like PHP config locations) may vary slightly betw
 
 ## License
 
-MIT — feel free to use, modify, and share.
+MIT - feel free to use, modify, and share.

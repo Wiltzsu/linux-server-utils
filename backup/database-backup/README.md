@@ -1,4 +1,4 @@
-# MySQL Automated Backup Script
+# MySQL automated backup script
 
 This script automates the process of backing up a MySQL database, compressing the backup, and cleaning up old backup files. It is designed to be run as a scheduled cron job and will send an email alert if any step fails. Email alerts are set up using Postfix, which you can install on your server with the help of [these](../../docs/install-postfix-mailutils.md) instructions.
 
@@ -12,7 +12,7 @@ This script automates the process of backing up a MySQL database, compressing th
 - **Email alerts** sent on any failure (backup, compression, or cleanup)
 - **Silent on success** (no email or output unless there is a problem)
 
-## How It Works
+## How it works
 
 1. **Creates a timestamped backup** of the specified MySQL database.
 2. **Compresses** the backup file to save disk space.
@@ -36,7 +36,7 @@ This script automates the process of backing up a MySQL database, compressing th
 
 ---
 
-## Example Email Alerts
+## Example email alerts
 
 - **mysqldump failed:**  
   _"mysqldump failed for database mydatabase on myserver at 2025-07-15_03-00-01"_
@@ -62,9 +62,3 @@ scp root@IP:/home/db_backups/mydatabase_db_backup_2025-05-10_12-20-46.sql.gz /yo
 # Unzip the file
 gunzip mydatabase_db_backup_2025-05-10_12-20-46.sql.gz
 ```
-
----
-
-## License
-
-MIT — feel free to use, modify, and share. 
