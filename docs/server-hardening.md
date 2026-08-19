@@ -1,4 +1,4 @@
-# Ubuntu Server Hardening
+# Ubuntu server hardening
 
 Step-by-step guide for hardening a fresh Ubuntu VPS after initial setup. Assumes you have root access and are targeting Ubuntu/Debian (tested on Ubuntu 24.04 LTS).
 
@@ -74,9 +74,9 @@ After copying the key, remove the private key from the server:
 sudo rm -f /home/myuser/.ssh/id_ed25519
 ```
 
-Keep `authorized_keys` — that file is required for SSH login.
+Keep `authorized_keys` - that file is required for SSH login.
 
-For GitHub Actions deploys, create a separate passphrase-free key with [`setup-github-deploy-key.sh`](../user/setup-github-deploy-key.sh). See [platform getting started — deploy key](https://github.com/Wiltzsu/platform/blob/master/docs/getting-started.md#set-up-a-github-actions-deploy-key).
+For GitHub Actions deploys, create a separate passphrase-free key with [`setup-github-deploy-key.sh`](../user/setup-github-deploy-key.sh). See [platform getting started - deploy key](https://github.com/Wiltzsu/platform/blob/master/docs/getting-started.md#set-up-a-github-actions-deploy-key).
 
 ---
 
@@ -196,7 +196,7 @@ Remove any UFW rules that allowed remote MySQL access.
 
 ## 7. Automatic security updates
 
-`unattended-upgrades` on Ubuntu installs **security updates** automatically — not full distro upgrades or major version bumps.
+`unattended-upgrades` on Ubuntu installs **security updates** automatically - not full distro upgrades or major version bumps.
 
 Install and enable:
 
@@ -283,7 +283,7 @@ sudo fail2ban-client status sshd
 
 ### Dynamic home IP
 
-If your home IP changes, do **not** add it to `ignoreip` — it will become stale. If you ban yourself:
+If your home IP changes, do **not** add it to `ignoreip` - it will become stale. If you ban yourself:
 
 - Wait for the ban to expire, or
 - Use your provider console and run: `sudo fail2ban-client set sshd unbanip YOUR.IP`
@@ -304,7 +304,7 @@ bantime = 30m
 
 ## 9. Optional: restrict SSH to a fixed IP
 
-An extra firewall layer: only your IP can reach port 22. Even if someone steals your private key **and** knows the passphrase, they cannot connect from their own network — the firewall drops them before SSH is reached.
+An extra firewall layer: only your IP can reach port 22. Even if someone steals your private key **and** knows the passphrase, they cannot connect from their own network - the firewall drops them before SSH is reached.
 
 This stacks on top of key-only auth, a key passphrase, fail2ban, and `AllowUsers`.
 
@@ -314,7 +314,7 @@ This stacks on top of key-only auth, a key passphrase, fail2ban, and `AllowUsers
 |-----------|----------------|
 | Stable home or office IP | Good optional hardening |
 | IP changes often (ISP, mobile) | Skip, or use a VPN with a static exit IP |
-| Travel frequently | Skip — you'll lock yourself out away from home |
+| Travel frequently | Skip - you'll lock yourself out away from home |
 
 ### Setup
 
@@ -340,7 +340,7 @@ If your IP changes, SSH will stop working until you update the rule. Options:
 
 - Use **provider console** to log in and run `sudo ufw allow from NEW.IP to any port 22 proto tcp`
 - Temporarily re-allow all SSH: `sudo ufw allow OpenSSH`
-- Do **not** add a changing home IP to fail2ban `ignoreip` — it has the same staleness problem
+- Do **not** add a changing home IP to fail2ban `ignoreip` - it has the same staleness problem
 
 ### VPN with a static exit IP (middle ground)
 
@@ -352,7 +352,7 @@ If your home IP changes but you use a VPN with a fixed exit address:
 
 ### Recovery if locked out
 
-Use your provider web console (see [Recovery checklist](#recovery-checklist)) to fix UFW — SSH restriction does not block console access.
+Use your provider web console (see [Recovery checklist](#recovery-checklist)) to fix UFW - SSH restriction does not block console access.
 
 ---
 
@@ -360,9 +360,9 @@ Use your provider web console (see [Recovery checklist](#recovery-checklist)) to
 
 After SSH, UFW, updates, and fail2ban are in place, a few small steps complete the setup.
 
-**Provider account 2FA** — Enable two-factor authentication on your hosting panel (Hetzner Cloud, DigitalOcean, Linode, etc.). This protects web console and rescue access, which is your break-glass path when SSH is locked down.
+**Provider account 2FA** - Enable two-factor authentication on your hosting panel (Hetzner Cloud, DigitalOcean, Linode, etc.). This protects web console and rescue access, which is your break-glass path when SSH is locked down.
 
-**Remove the private key from the server** — After copying it to your laptop (see [step 2](#2-create-an-admin-user)):
+**Remove the private key from the server** - After copying it to your laptop (see [step 2](#2-create-an-admin-user)):
 
 ```bash
 sudo rm -f /home/myuser/.ssh/id_ed25519
@@ -377,7 +377,7 @@ sudo pm2 startup systemd
 sudo pm2 save
 ```
 
-**Optional reboot test** — When convenient, reboot and confirm SSH and any critical services come back:
+**Optional reboot test** - When convenient, reboot and confirm SSH and any critical services come back:
 
 ```bash
 sudo reboot
@@ -401,9 +401,3 @@ sudo apt update && sudo apt upgrade -y
 | fail2ban banned your IP | Console → `sudo fail2ban-client set sshd unbanip YOUR.IP` |
 | Bad sshd_config | Console → fix file → `sudo sshd -t` → `sudo systemctl reload ssh` |
 | UFW blocked SSH | Console → `sudo ufw allow OpenSSH` or `sudo ufw allow from YOUR.IP to any port 22 proto tcp` |
-
----
-
-## License
-
-MIT — see repository root.

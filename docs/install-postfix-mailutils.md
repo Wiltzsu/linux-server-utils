@@ -1,10 +1,10 @@
-# Setting Up Postfix and Mailutils for Outgoing Email
+# Setting up Postfix and mailutils for outgoing email
 
 This guide will help you install and configure Postfix and mailutils on your server, including setting up an external SMTP relay (such as Gmail) for reliable outgoing email.
 
 ---
 
-## 1. Install Mail Utilities
+## 1. Install mail utilities
 
 Update your package list and install `mailutils` and `postfix`:
 
@@ -15,7 +15,7 @@ sudo apt install mailutils postfix -y
 
 ---
 
-## 2. Postfix Installation Prompts
+## 2. Postfix installation prompts
 
 During installation, you will be prompted for configuration options:
 
@@ -28,11 +28,11 @@ During installation, you will be prompted for configuration options:
 
 ---
 
-## 3. Configure External SMTP Relay (e.g., Gmail)
+## 3. Configure external SMTP relay (e.g., Gmail)
 
 If your provider blocks outbound port 25 or you want to use authenticated SMTP, configure Postfix to relay through an external SMTP server.
 
-### Edit Postfix Main Configuration
+### Edit Postfix main configuration
 
 Open the main configuration file:
 
@@ -53,7 +53,7 @@ smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
 
 ---
 
-### Set Up SMTP Authentication
+### Set up SMTP authentication
 
 Create the password file:
 
@@ -85,7 +85,7 @@ sudo systemctl restart postfix
 
 ---
 
-## 4. Check Postfix Logs
+## 4. Check Postfix logs
 
 To verify mail delivery and troubleshoot, check the mail log:
 

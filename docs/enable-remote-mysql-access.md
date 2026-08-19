@@ -1,10 +1,10 @@
-# Enabling Remote MySQL Access (Hetzner Server) for Connecting with Antares (GUI for MySQL Databases)
+# Enabling remote MySQL access (Hetzner server) for connecting with Antares (GUI for MySQL databases)
 
 This guide explains how to enable remote access to MySQL on a Hetzner server, allowing you to connect using Antares or any other MySQL GUI. This guide may also apply to other VPN and cloud providers.
 
 ---
 
-## 1. Verify MySQL is Listening on Port 3306
+## 1. Verify MySQL is listening on port 3306
 
 Run the following command to check if MySQL is listening:
 
@@ -22,7 +22,7 @@ If you see `127.0.0.1:3306`, MySQL is only listening locally and will not accept
 
 ---
 
-### Fix: Update MySQL Configuration
+### Fix: Update MySQL configuration
 
 Edit the MySQL config file:
 
@@ -50,7 +50,7 @@ sudo systemctl restart mysql
 
 ---
 
-## 2. Allow Port 3306 in Hetzner Cloud Firewall
+## 2. Allow port 3306 in Hetzner Cloud firewall
 
 Make sure your Hetzner cloud firewall allows inbound traffic on port 3306 **only from your specific IP address**.
 
@@ -59,7 +59,7 @@ Make sure your Hetzner cloud firewall allows inbound traffic on port 3306 **only
 
 ---
 
-## 3. Allow MySQL Through UFW (Ubuntu Firewall)
+## 3. Allow MySQL through UFW (Ubuntu firewall)
 
 Allow remote access from your local IP address:
 
@@ -81,7 +81,7 @@ sudo ufw status
 
 ---
 
-## 4. Create a Remote Access MySQL User
+## 4. Create a remote access MySQL user
 
 Log in to MySQL:
 
@@ -99,7 +99,7 @@ FLUSH PRIVILEGES;
 
 ---
 
-## 5. Verify the New User
+## 5. Verify the new user
 
 Check if the new user exists:
 
@@ -115,7 +115,7 @@ myuser | YOUR.LOCAL.IP
 
 ---
 
-## Security Summary
+## Security summary
 
 By restricting access to your MySQL server at both the Hetzner cloud firewall and the server (UFW and MySQL user) layers, you ensure that only your specific IP address can connect. This layered approach significantly reduces the risk of unauthorized access.
 
