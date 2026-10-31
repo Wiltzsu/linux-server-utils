@@ -6,7 +6,7 @@ The goal is to provide a structured, reusable, and documented set of utilities f
 
 ## Requirements & compatibility
 
-- Scripts are written in **Bash**
+- Scripts are written in **Bash**; some tooling (e.g. monitoring email reports) uses **Python 3** on the host
 - Target environment: **Ubuntu/Debian-based systems**
 - Tested on Ubuntu 24.04 LTS
 
@@ -14,4 +14,4 @@ _Note: Some commands or paths (like PHP config locations) may vary slightly betw
 
 ## License
 
-MIT - feel free to use, modify, and share.
+MIT
