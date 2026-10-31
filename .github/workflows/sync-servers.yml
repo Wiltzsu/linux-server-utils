@@ -5,6 +5,7 @@ on:
   push:
     branches: [master]
     paths:
+      - "README.md"
       - "monitoring/**"
       - "backup/**"
       - "user/**"
