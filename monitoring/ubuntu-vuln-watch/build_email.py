@@ -88,6 +88,28 @@ def installed_packages() -> set[str]:
     return {ln.strip() for ln in out.splitlines() if ln.strip()}
 
 
+def installed_versions() -> dict[str, str]:
+    out = run(["dpkg-query", "-W", "-f=${Package}\t${Version}\n"])
+    versions: dict[str, str] = {}
+    for ln in out.splitlines():
+        if not ln.strip():
+            continue
+        name, _, ver = ln.partition("\t")
+        if name:
+            versions[name.strip()] = ver.strip()
+    return versions
+
+
+def dpkg_version_ge(installed: str, required: str) -> bool:
+    return (
+        subprocess.run(
+            ["dpkg", "--compare-versions", installed, "ge", required],
+            check=False,
+        ).returncode
+        == 0
+    )
+
+
 def upgradable_lines() -> list[str]:
     try:
         out = subprocess.check_output(
@@ -160,16 +182,54 @@ def fetch_usn_detail(usn_id: str) -> dict | None:
         return None
 
 
-def noble_packages_from_usn(detail: dict, codename: str) -> set[str]:
+def usn_fixed_versions(detail: dict, codename: str) -> dict[str, str]:
     rp = detail.get("release_packages") or {}
-    pkgs = rp.get(codename) or []
-    return {p["name"] for p in pkgs if p.get("name")}
+    fixed: dict[str, str] = {}
+    for p in rp.get(codename) or []:
+        name = p.get("name")
+        ver = p.get("version")
+        if name and ver:
+            fixed[name] = ver
+    return fixed
+
+
+def packages_below_usn_fix(
+    hit: list[str],
+    versions: dict[str, str],
+    fixed: dict[str, str],
+    upgradable_pkg: set[str],
+) -> list[dict]:
+    """Installed USN packages that are not yet at the fixed version in the notice."""
+    behind: list[dict] = []
+    for pkg in hit:
+        installed_ver = versions.get(pkg, "")
+        required = fixed.get(pkg)
+        if required and installed_ver:
+            if dpkg_version_ge(installed_ver, required):
+                continue
+            behind.append(
+                {
+                    "name": pkg,
+                    "installed": installed_ver,
+                    "fixed": required,
+                }
+            )
+        elif pkg in upgradable_pkg:
+            behind.append(
+                {
+                    "name": pkg,
+                    "installed": installed_ver or "?",
+                    "fixed": required or "?",
+                }
+            )
+    return behind
 
 
 def match_usns(
     notices: list[dict],
     codename: str,
     installed: set[str],
+    versions: dict[str, str],
     upgradable_pkg: set[str],
 ) -> tuple[list[dict], list[dict]]:
     apply: list[dict] = []
@@ -180,22 +240,29 @@ def match_usns(
         if not detail:
             skip.append({**n, "reason": "could not fetch USN detail"})
             continue
-        usn_pkgs = noble_packages_from_usn(detail, codename)
+        fixed = usn_fixed_versions(detail, codename)
+        usn_pkgs = set(fixed)
         hit = sorted(installed & usn_pkgs)
         if not hit:
             skip.append({**n, "reason": "no affected packages installed"})
             continue
-        needs = sorted(installed & usn_pkgs & upgradable_pkg)
+        behind = packages_below_usn_fix(hit, versions, fixed, upgradable_pkg)
+        if not behind:
+            skip.append({**n, "reason": "installed versions at or above USN fixed versions"})
+            continue
         cves = detail.get("cves_ids") or []
         apply.append(
             {
                 "id": usn_id,
                 "title": n.get("title") or detail.get("title") or "",
                 "published": n.get("published") or detail.get("published") or "",
-                "packages_installed": hit[:8],
-                "packages_more": max(0, len(hit) - 8),
-                "needs_upgrade": bool(needs),
-                "packages_upgradable": needs[:8],
+                "packages_installed": [b["name"] for b in behind[:8]],
+                "packages_more": max(0, len(behind) - 8),
+                "needs_upgrade": True,
+                "packages_behind": behind[:8],
+                "packages_upgradable": sorted(
+                    {b["name"] for b in behind} & upgradable_pkg
+                )[:8],
                 "cves": cves[:5],
                 "url": f"https://ubuntu.com/security/notices/{usn_id}",
             }
@@ -246,11 +313,12 @@ def plain_text(report: Report, ai_section: str | None) -> str:
         lines.append("")
         lines.append("=== USNs that apply to installed packages ===")
         for u in report.usns_apply:
-            flag = "UPGRADE" if u.get("needs_upgrade") else "installed OK / review"
-            lines.append(f"  {u['id']}: {u['title']} [{flag}]")
+            lines.append(f"  {u['id']}: {u['title']} [UPGRADE]")
             lines.append(f"    {u['url']}")
-            if u.get("packages_installed"):
-                lines.append(f"    packages: {', '.join(u['packages_installed'])}")
+            for b in u.get("packages_behind") or []:
+                lines.append(
+                    f"    {b['name']}: installed {b['installed']} → fixed {b['fixed']}"
+                )
             if u.get("cves"):
                 lines.append(f"    CVEs: {', '.join(u['cves'])}")
 
@@ -298,17 +366,21 @@ def html_report(report: Report, ai_section: str | None) -> str:
 
     usn_cards = ""
     for u in report.usns_apply:
-        badge = "#dc2626" if u.get("needs_upgrade") else "#059669"
-        badge_text = "upgrade" if u.get("needs_upgrade") else "review"
         cves = ", ".join(u.get("cves") or [])
+        ver_rows = ""
+        for b in u.get("packages_behind") or []:
+            ver_rows += (
+                f"<li style='font-family:monospace;font-size:12px;'>"
+                f"{esc(b['name'])}: {esc(b['installed'])} → {esc(b['fixed'])}</li>"
+            )
         usn_cards += f"""
         <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:10px;">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <strong>{esc(u['id'])}</strong>
-            <span style="background:{badge};color:#fff;font-size:11px;padding:2px 8px;border-radius:999px;">{badge_text}</span>
+            <span style="background:#dc2626;color:#fff;font-size:11px;padding:2px 8px;border-radius:999px;">upgrade</span>
           </div>
           <div style="margin-top:6px;color:#334155;">{esc(u['title'])}</div>
-          <div style="margin-top:6px;font-size:12px;color:#64748b;">Packages: {esc(', '.join(u.get('packages_installed') or []))}</div>
+          <ul style="margin:8px 0 0;padding-left:20px;color:#64748b;">{ver_rows}</ul>
           {f'<div style="margin-top:4px;font-size:12px;color:#64748b;">CVEs: {esc(cves)}</div>' if cves else ''}
           <div style="margin-top:8px;"><a href="{esc(u['url'])}">{esc(u['url'])}</a></div>
         </div>
@@ -420,13 +492,16 @@ def build_report(
     notices = usn_data.get("notices") or []
 
     installed = installed_packages()
+    versions = installed_versions()
     up_lines = upgradable_lines()
     upgradable_pkg = {package_from_apt_line(ln) for ln in up_lines}
 
     security = [ln for ln in up_lines if is_security_line(ln)]
     other = [ln for ln in up_lines if not is_security_line(ln)]
 
-    usns_apply, usns_skip = match_usns(notices, codename, installed, upgradable_pkg)
+    usns_apply, usns_skip = match_usns(
+        notices, codename, installed, versions, upgradable_pkg
+    )
 
     report = Report(
         host=host or parsed.get("host") or "host",
