@@ -2,6 +2,8 @@
 
 Daily scan on a single Ubuntu host: local apt/kernel snapshot, recent USNs for your release, and a **short HTML + plain email** that only highlights what applies on **this** machine.
 
+Recent USNs are matched against **installed dpkg versions** and the fixed versions in Ubuntu’s USN JSON (same rules as `dpkg --compare-versions`). Notices you have already patched do not appear in the email.
+
 Install on the server (pick an install directory, e.g. `~/scripts/ubuntu-vuln-watch`):
 
 ```bash

@@ -1,0 +1,20 @@
+name: Sync linux-server-utils to servers
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "monitoring/**"
+      - "backup/**"
+      - "user/**"
+      - "web/**"
+      - "docs/**"
+      - ".github/workflows/sync-servers.yml"
+
+jobs:
+  sync-1:
+    uses: Wiltzsu/platform/.github/workflows/reusable-sync-linux-server-utils.yml@master
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      HOST: ${{ secrets.HOST }}
+      USER: ${{ secrets.USER }}
