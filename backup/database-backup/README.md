@@ -1,64 +1,46 @@
 # MySQL automated backup script
 
-This script automates the process of backing up a MySQL database, compressing the backup, and cleaning up old backup files. It is designed to be run as a scheduled cron job and will send an email alert if any step fails. Email alerts are set up using Postfix, which you can install on your server with the help of [these](../../docs/install-postfix-mailutils.md) instructions.
+Creates timestamped `mysqldump` output under `/var/backups/db`, gzips it, and deletes local dumps older than `RETENTION_DAYS`. Intended for root cron on app servers; pairs with [restic-vault](../restic-vault/README.md) for off-server copies of the same directory.
 
----
+## Configure
 
-## Features
+Edit at the top of `database-backup.sh`:
 
-- **Automated MySQL database backup** using `mysqldump`
-- **Compression** of the backup file with `gzip`
-- **Automatic cleanup** of backup files older than 7 days
-- **Email alerts** sent on any failure (backup, compression, or cleanup)
-- **Silent on success** (no email or output unless there is a problem)
+- `DB_NAME` — database to dump (filename prefix `${DB_NAME}_db_backup_…`)
+- `DB_USER` — typically `root` with `auth_socket` on Ubuntu
+- `BACKUP_DIR` — default `/var/backups/db`
+- `RETENTION_DAYS` — local retention only (restic has its own policy)
 
-## How it works
+## Install on a server
 
-1. **Creates a timestamped backup** of the specified MySQL database.
-2. **Compresses** the backup file to save disk space.
-3. **Deletes old backups** (older than 7 days) to manage storage.
-4. **Sends an email alert** to the configured address if any step fails.
+```bash
+sudo install -m 755 database-backup.sh /usr/local/sbin/database-backup.sh
+# edit DB_NAME (and others) on the server, or maintain a server-local copy under /usr/local/sbin
+sudo crontab -e
+```
 
-## Usage
+Example cron (every 3 hours):
 
-1. **Configure the script:**
-   - Set the `DB_USER`, `DB_NAME`, `BACKUP_DIR`, and `ALERT_EMAIL` variables at the top of the script.
+```cron
+0 */3 * * * /usr/local/sbin/database-backup.sh
+```
 
-2. **Make the script executable:**
-   ```bash
-   chmod +x /path/to/mysql_backup_script.sh
-   ```
+Run restic after dumps exist (see restic-vault README).
 
-3. **Schedule with cron (example: every 3 hours):**
-   ```cron
-   0 */3 * * * /path/to/mysql_backup_script.sh
-   ```
+## Restore a dump on the server
 
----
+```bash
+sudo zcat /var/backups/db/your_database_name_db_backup_2026-11-01_03-00-01.sql.gz | mysql your_database_name
+```
 
-## Example email alerts
+Copy off the host:
 
-- **mysqldump failed:**  
-  _"mysqldump failed for database mydatabase on myserver at 2025-07-15_03-00-01"_
-
-- **Compression failed:**  
-  _"gzip compression failed for /home/db_backups/mydatabase_db_backup_2025-07-15_03-00-01.sql on myserver at 2025-07-15_03-00-01"_
-
-- **Cleanup failed:**  
-  _"Failed to delete old backups for mydatabase on myserver at 2025-07-15_03-00-01"_
-
----
+```bash
+scp root@HOST:/var/backups/db/your_database_name_db_backup_2026-11-01_03-00-01.sql.gz .
+```
 
 ## Notes
 
-- The script assumes the MySQL user can authenticate without a password (e.g., via `auth_socket`).
-- No output is produced on success, so cron will not send emails unless there is a failure.
-- Adjust the backup retention period by changing the `-mtime +7` value in the cleanup step.
-
-### If needed, copy the dump from the server to your local environment
-```
-scp root@IP:/home/db_backups/mydatabase_db_backup_2025-05-10_12-20-46.sql.gz /your/local/folder/
-
-# Unzip the file
-gunzip mydatabase_db_backup_2025-05-10_12-20-46.sql.gz
-```
+- Assumes `mysqldump` can run as `DB_USER` without a password (e.g. root + `auth_socket`).
+- Multiple databases: run separate cron lines with different `DB_NAME` values, or extend the script to loop over a list.
+- Failure email alerts are not included here; add monitoring or wrap with your mail setup if needed.
