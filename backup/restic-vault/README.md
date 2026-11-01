@@ -1,6 +1,6 @@
-# Restic backups to Hetzner Storage Box (forge)
+# Restic backups to Hetzner Storage Box
 
-Off-server copies for **apps-host**. Complements local MySQL dumps in `/home/db_backups` (root cron today). Credentials stay on the server only, not in git.
+Off-server copies for app servers. Complements local MySQL dumps in `/home/db_backups` (root cron). Credentials stay on the server only, not in git.
 
 **Vault:** Hetzner Storage Box (BX11). See private `~/career/automation.md` (**A7**).
 
@@ -10,9 +10,9 @@ Off-server copies for **apps-host**. Complements local MySQL dumps in `/home/db_
 
 Expand `RESTIC_BACKUP_PATHS` later (uploads, selected `/var/www` trees) once DB off-site backup is proven.
 
-## One-time setup on forge
+## One-time setup on the server
 
-Install restic (already present on forge as of 2026-10):
+Install restic:
 
 ```bash
 sudo apt install restic
@@ -29,19 +29,19 @@ sudo chmod 600 /etc/restic/password
 Install env file and script from this repo:
 
 ```bash
-sudo cp forge.env.example /etc/restic/forge.env
-sudo chmod 600 /etc/restic/forge.env
+sudo cp vault.env.example /etc/restic/vault.env
+sudo chmod 600 /etc/restic/vault.env
 # Edit RESTIC_REPOSITORY with your Storage Box SFTP user/host from Hetzner Console
 
-sudo install -m 755 restic-backup-forge.sh /usr/local/sbin/restic-backup-forge.sh
-sudo touch /var/log/restic-forge.log
-sudo chmod 640 /var/log/restic-forge.log
+sudo install -m 755 restic-backup-vault.sh /usr/local/sbin/restic-backup-vault.sh
+sudo touch /var/log/restic-vault.log
+sudo chmod 640 /var/log/restic-vault.log
 ```
 
 Initialize the remote repository (once):
 
 ```bash
-sudo bash -c 'set -a; source /etc/restic/forge.env; set +a; restic init'
+sudo bash -c 'set -a; source /etc/restic/vault.env; set +a; restic init'
 ```
 
 If `init` says the repo already exists, skip it.
@@ -49,16 +49,16 @@ If `init` says the repo already exists, skip it.
 ## Manual proof run
 
 ```bash
-sudo /usr/local/sbin/restic-backup-forge.sh
-sudo bash -c 'set -a; source /etc/restic/forge.env; set +a; restic snapshots'
-tail -20 /var/log/restic-forge.log
+sudo /usr/local/sbin/restic-backup-vault.sh
+sudo bash -c 'set -a; source /etc/restic/vault.env; set +a; restic snapshots'
+tail -20 /var/log/restic-vault.log
 ```
 
 ## Test restore once (A7 done criteria)
 
 ```bash
 sudo mkdir -p /tmp/restic-restore-test
-sudo bash -c 'set -a; source /etc/restic/forge.env; set +a; restic restore latest --target /tmp/restic-restore-test --path /home/db_backups'
+sudo bash -c 'set -a; source /etc/restic/vault.env; set +a; restic restore latest --target /tmp/restic-restore-test --path /home/db_backups'
 ls -la /tmp/restic-restore-test/home/db_backups | head
 sudo rm -rf /tmp/restic-restore-test
 ```
@@ -68,20 +68,20 @@ sudo rm -rf /tmp/restic-restore-test
 Run **after** local dumps exist (e.g. daily 04:15 UTC, local MySQL job runs every 3 hours):
 
 ```cron
-15 4 * * * /usr/local/sbin/restic-backup-forge.sh
+15 4 * * * /usr/local/sbin/restic-backup-vault.sh
 ```
 
 Optional monthly integrity check (1st of month, 05:00):
 
 ```cron
-0 5 1 * * RESTIC_RUN_CHECK=1 /usr/local/sbin/restic-backup-forge.sh
+0 5 1 * * RESTIC_RUN_CHECK=1 /usr/local/sbin/restic-backup-vault.sh
 ```
 
-(`RESTIC_RUN_CHECK` must be exported in cron or add it to `/etc/restic/forge.env`.)
+(`RESTIC_RUN_CHECK` must be exported in cron or add it to `/etc/restic/vault.env`.)
 
 ## Wrapper script
 
-`restic-backup-forge.sh` loads `/etc/restic/forge.env`, backs up `RESTIC_BACKUP_PATHS`, runs `forget --prune`, logs to `/var/log/restic-forge.log`, and uses a flock lock at `/run/restic-forge.lock`.
+`restic-backup-vault.sh` loads `/etc/restic/vault.env`, backs up `RESTIC_BACKUP_PATHS`, runs `forget --prune`, logs to `/var/log/restic-vault.log`, and uses a flock lock at `/run/restic-vault.lock`.
 
 ## References
 
