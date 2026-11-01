@@ -6,10 +6,10 @@ Creates timestamped `mysqldump` output under `/var/backups/db`, gzips it, and de
 
 Edit at the top of `database-backup.sh`:
 
-- `DB_NAME` — database to dump (filename prefix `${DB_NAME}_db_backup_…`)
-- `DB_USER` — typically `root` with `auth_socket` on Ubuntu
-- `BACKUP_DIR` — default `/var/backups/db`
-- `RETENTION_DAYS` — local retention only (restic has its own policy)
+- `DB_NAME` - database to dump (filename prefix `${DB_NAME}_db_backup_...`)
+- `DB_USER` - typically `root` with `auth_socket` on Ubuntu
+- `BACKUP_DIR` - default `/var/backups/db`
+- `RETENTION_DAYS` - local retention only (restic has its own policy)
 
 ## Install on a server
 
