@@ -6,7 +6,7 @@ Off-server copies for app servers. Complements local MySQL dumps in `/var/backup
 
 ## What v1 backs up
 
-- **`/var/backups/db`** — `.sql.gz` files from [database-backup.sh](../database-backup/database-backup.sh) (typically every 3 hours)
+- **`/var/backups/db`** - `.sql.gz` files from [database-backup.sh](../database-backup/database-backup.sh) (typically every 3 hours)
 
 Expand `RESTIC_BACKUP_PATHS` later (uploads, selected `/var/www` trees) once DB off-site backup is proven.
 
