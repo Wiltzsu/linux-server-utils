@@ -38,7 +38,7 @@ if [[ -z "${RESTIC_PASSWORD:-}" && -z "${RESTIC_PASSWORD_FILE:-}" ]]; then
   exit 1
 fi
 
-BACKUP_PATHS_RAW="${RESTIC_BACKUP_PATHS:-/home/db_backups}"
+BACKUP_PATHS_RAW="${RESTIC_BACKUP_PATHS:-/var/backups/db}"
 read -r -a BACKUP_PATHS <<< "$BACKUP_PATHS_RAW"
 
 for path in "${BACKUP_PATHS[@]}"; do
