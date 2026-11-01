@@ -1,6 +1,6 @@
-# Restic backups to Hetzner Storage Box (the server)
+# Restic backups to Hetzner Storage Box
 
-Off-server copies for **apps-host**. Complements local MySQL dumps in `/home/db_backups` (root cron today). Credentials stay on the server only, not in git.
+Off-server copies for app servers. Complements local MySQL dumps in `/home/db_backups` (root cron). Credentials stay on the server only, not in git.
 
 **Vault:** Hetzner Storage Box (BX11). See private `~/career/automation.md` (**A7**).
 
@@ -12,7 +12,7 @@ Expand `RESTIC_BACKUP_PATHS` later (uploads, selected `/var/www` trees) once DB 
 
 ## One-time setup on the server
 
-Install restic (already present on the server as of 2026-10):
+Install restic:
 
 ```bash
 sudo apt install restic
@@ -81,7 +81,7 @@ Optional monthly integrity check (1st of month, 05:00):
 
 ## Wrapper script
 
-`restic-backup-vault.sh` loads `/etc/restic/vault.env`, backs up `RESTIC_BACKUP_PATHS`, runs `forget --prune`, logs to `/var/log/restic-vault.log`, and uses a flock lock at `/run/restic-the server.lock`.
+`restic-backup-vault.sh` loads `/etc/restic/vault.env`, backs up `RESTIC_BACKUP_PATHS`, runs `forget --prune`, logs to `/var/log/restic-vault.log`, and uses a flock lock at `/run/restic-vault.lock`.
 
 ## References
 

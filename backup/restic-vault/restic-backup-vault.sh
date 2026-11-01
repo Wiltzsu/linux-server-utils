@@ -3,7 +3,7 @@ set -euo pipefail
 
 ENV_FILE="${RESTIC_ENV_FILE:-/etc/restic/vault.env}"
 LOG_FILE="${RESTIC_LOG_FILE:-/var/log/restic-vault.log}"
-LOCK_FILE="${RESTIC_LOCK_FILE:-/run/restic-the server.lock}"
+LOCK_FILE="${RESTIC_LOCK_FILE:-/run/restic-vault.lock}"
 
 KEEP_DAILY="${RESTIC_KEEP_DAILY:-7}"
 KEEP_WEEKLY="${RESTIC_KEEP_WEEKLY:-4}"
@@ -48,7 +48,16 @@ for path in "${BACKUP_PATHS[@]}"; do
   fi
 done
 
-TAGS="${RESTIC_BACKUP_TAGS:-server,scheduled}"
+TAGS_RAW="${RESTIC_BACKUP_TAGS:-scheduled,db}"
+IFS=',' read -r -a TAG_ARR <<< "$TAGS_RAW"
+TAG_ARGS=()
+for t in "${TAG_ARR[@]}"; do
+  t="${t#"${t%%[![:space:]]*}"}"
+  t="${t%"${t##*[![:space:]]}"}"
+  [[ -n "$t" ]] && TAG_ARGS+=(--tag "$t")
+done
+
+BACKUP_HOST="${RESTIC_BACKUP_HOST:-}"
 
 exec 9>"$LOCK_FILE"
 if ! flock -n 9; then
@@ -58,7 +67,11 @@ fi
 
 {
   log "Starting restic backup (${BACKUP_PATHS[*]})"
-  restic backup "${BACKUP_PATHS[@]}" --tag "$TAGS"
+  if [[ -n "$BACKUP_HOST" ]]; then
+    restic backup "${BACKUP_PATHS[@]}" --host "$BACKUP_HOST" "${TAG_ARGS[@]}"
+  else
+    restic backup "${BACKUP_PATHS[@]}" "${TAG_ARGS[@]}"
+  fi
   log "Applying retention (daily=$KEEP_DAILY weekly=$KEEP_WEEKLY monthly=$KEEP_MONTHLY)"
   restic forget \
     --keep-daily "$KEEP_DAILY" \
