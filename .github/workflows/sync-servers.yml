@@ -16,6 +16,8 @@ on:
 jobs:
   sync-1:
     uses: Wiltzsu/platform/.github/workflows/reusable-sync-linux-server-utils.yml@master
+    with:
+      sync_label: "1"
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
       HOST: ${{ secrets.HOST }}
@@ -23,6 +25,8 @@ jobs:
 
   sync-2:
     uses: Wiltzsu/platform/.github/workflows/reusable-sync-linux-server-utils.yml@master
+    with:
+      sync_label: "2"
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
       HOST: ${{ secrets.HOST_2 }}
