@@ -4,10 +4,10 @@ Daily scan on a single Ubuntu host: local apt/kernel snapshot, recent USNs for y
 
 Recent USNs are matched against **installed dpkg versions** and the fixed versions in Ubuntu’s USN JSON (same rules as `dpkg --compare-versions`). Notices you have already patched do not appear in the email.
 
-Install on the server (pick an install directory, e.g. `~/scripts/ubuntu-vuln-watch`):
+Install on the server (Ansible site-ops uses `/usr/local/src/linux-server-utils/monitoring/ubuntu-vuln-watch`, or pick another path):
 
 ```bash
-INSTALL=~/scripts/ubuntu-vuln-watch
+INSTALL=/usr/local/src/linux-server-utils/monitoring/ubuntu-vuln-watch
 mkdir -p "$INSTALL"
 # copy scan.sh, build_email.py, analyze_with_cursor.py, config.env.example into $INSTALL
 chmod +x "$INSTALL"/scan.sh "$INSTALL"/build_email.py "$INSTALL"/analyze_with_cursor.py
