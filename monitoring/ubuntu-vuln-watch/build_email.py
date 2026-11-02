@@ -12,6 +12,8 @@ import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 
+_ARTIFACTS_DIR = Path(__file__).resolve().parent / "run"
+
 
 @dataclass
 class Report:
@@ -332,7 +334,7 @@ def plain_text(report: Report, ai_section: str | None) -> str:
             lines.append(f"  {package_from_apt_line(ln)}")
 
     lines.append("")
-    lines.append(f"Full scan artifacts: ~/scripts/ubuntu-vuln-watch/run/")
+    lines.append(f"Full scan artifacts: {_ARTIFACTS_DIR}/")
     return "\n".join(lines) + "\n"
 
 
@@ -447,7 +449,7 @@ def html_report(report: Report, ai_section: str | None) -> str:
   {sec_table}
   {usn_block}
   {other_note}
-  <p style="font-size:11px;color:#94a3b8;margin-top:24px;">Generated {esc(report.stamp)} UTC · artifacts in ~/scripts/ubuntu-vuln-watch/run/</p>
+  <p style="font-size:11px;color:#94a3b8;margin-top:24px;">Generated {esc(report.stamp)} UTC · artifacts in {esc(str(_ARTIFACTS_DIR))}/</p>
 </body></html>
 """
 
