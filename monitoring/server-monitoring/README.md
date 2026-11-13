@@ -26,15 +26,17 @@ This script monitors your server’s key resources (CPU load, disk usage, and RA
 
 ## Configuration
 
-You can adjust the alert thresholds by editing these variables at the top of `server-resources.sh`:
+Each setting can be overridden with an environment variable, for example in the cron line:
 
-```bash
-MAX_LOAD=2      # Maximum allowed 1-minute load average
-MAX_DISK=80     # Maximum allowed root disk usage percentage
-MAX_RAM=80      # Maximum allowed RAM usage percentage
-```
+| Variable | Default | Meaning |
+|---|---|---|
+| `ALERT_EMAIL` | `root` | Alert recipient. Forward `root` to a real address in `/etc/aliases` (then run `newaliases`). |
+| `MAX_LOAD` | CPU count (`nproc`) | Maximum 1-minute load average |
+| `MAX_DISK` | `80` | Maximum root disk usage percentage |
+| `MAX_RAM` | `80` | Maximum RAM usage percentage |
+| `COOLDOWN` | `3600` | Minimum seconds between alert emails |
 
-The alert email recipient is set in the script.
+While a problem lasts, the script sends at most one email per `COOLDOWN`, so a 5-minute cron doesn't flood the inbox. The time of the last alert is kept in `/var/tmp/monitor-last-alert`.
 
 ---
 
@@ -68,6 +70,8 @@ Add the following line:
 
 ```cron
 */10 * * * * /path/to/monitoring/server-monitoring/server-resources.sh
+# or with overrides:
+# */5 * * * * ALERT_EMAIL=you@example.com MAX_DISK=90 /path/to/monitoring/server-monitoring/server-resources.sh
 ```
 
 Replace `/path/to/monitoring/server-monitoring/` with the actual path on your server.
