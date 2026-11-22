@@ -53,10 +53,21 @@ class Report:
             )
 
         for u in self.usns_apply:
-            if u.get("needs_upgrade"):
-                self.actions.append(
-                    f"{u['id']} ({u['title']}) — installed package(s) still upgradable."
+            if not u.get("needs_upgrade"):
+                continue
+            parts: list[str] = []
+            if u.get("ready_count"):
+                parts.append(f"{u['ready_count']} upgradable via apt now")
+            if u.get("awaiting_index_count"):
+                parts.append(
+                    f"{u['awaiting_index_count']} below USN fix — fixed version not in apt indexes yet"
                 )
+            if u.get("indexed_not_offered_count"):
+                parts.append(
+                    f"{u['indexed_not_offered_count']} in indexes but not in apt upgrade (phasing/hold/pin?)"
+                )
+            detail = "; ".join(parts) if parts else "installed below USN fixed versions"
+            self.actions.append(f"{u['id']} ({u['title']}) — {detail}.")
 
         if not self.sctp_blocked:
             self.warnings.append(
@@ -71,8 +82,13 @@ class Report:
             self.subject_detail = "reboot needed"
         elif self.security_upgradable:
             self.subject_detail = f"{len(self.security_upgradable)} security update(s)"
+        elif any(u.get("ready_count") for u in self.usns_apply):
+            self.subject_detail = "USN upgrades ready in apt"
         elif any(u.get("needs_upgrade") for u in self.usns_apply):
-            self.subject_detail = "USN packages need upgrade"
+            if any(u.get("awaiting_index_count") for u in self.usns_apply):
+                self.subject_detail = "USN applies — fix not in apt yet"
+            else:
+                self.subject_detail = "USN applies — review apt policy"
         elif self.usns_apply:
             self.subject_detail = f"{len(self.usns_apply)} USN(s) apply (review)"
         elif self.warnings:
@@ -129,6 +145,26 @@ def upgradable_lines() -> list[str]:
 
 def package_from_apt_line(line: str) -> str:
     return line.split("/", 1)[0].strip()
+
+
+def apt_candidate_version(package: str) -> str:
+    try:
+        out = subprocess.check_output(
+            ["apt-cache", "policy", package],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+    except subprocess.CalledProcessError:
+        return ""
+    for line in out.splitlines():
+        line = line.strip()
+        if line.startswith("Candidate:"):
+            return line.split(":", 1)[1].strip()
+    return ""
+
+
+def apt_candidates(packages: set[str]) -> dict[str, str]:
+    return {pkg: apt_candidate_version(pkg) for pkg in packages}
 
 
 def is_security_line(line: str) -> bool:
@@ -200,31 +236,66 @@ def packages_below_usn_fix(
     versions: dict[str, str],
     fixed: dict[str, str],
     upgradable_pkg: set[str],
+    candidates: dict[str, str],
 ) -> list[dict]:
     """Installed USN packages that are not yet at the fixed version in the notice."""
     behind: list[dict] = []
     for pkg in hit:
         installed_ver = versions.get(pkg, "")
         required = fixed.get(pkg)
-        if required and installed_ver:
-            if dpkg_version_ge(installed_ver, required):
-                continue
-            behind.append(
-                {
-                    "name": pkg,
-                    "installed": installed_ver,
-                    "fixed": required,
-                }
-            )
-        elif pkg in upgradable_pkg:
-            behind.append(
-                {
-                    "name": pkg,
-                    "installed": installed_ver or "?",
-                    "fixed": required or "?",
-                }
-            )
+        if not required:
+            continue
+        if installed_ver and dpkg_version_ge(installed_ver, required):
+            continue
+        in_upgradable = pkg in upgradable_pkg
+        candidate = candidates.get(pkg, "")
+        if in_upgradable:
+            state = "ready"
+        elif candidate and dpkg_version_ge(candidate, required):
+            state = "indexed_not_offered"
+        else:
+            state = "awaiting_index"
+        behind.append(
+            {
+                "name": pkg,
+                "installed": installed_ver or "?",
+                "fixed": required,
+                "candidate": candidate or "?",
+                "state": state,
+            }
+        )
     return behind
+
+
+def usn_availability_counts(behind: list[dict]) -> dict[str, int]:
+    ready = sum(1 for b in behind if b.get("state") == "ready")
+    awaiting = sum(1 for b in behind if b.get("state") == "awaiting_index")
+    indexed = sum(1 for b in behind if b.get("state") == "indexed_not_offered")
+    return {
+        "ready_count": ready,
+        "awaiting_index_count": awaiting,
+        "indexed_not_offered_count": indexed,
+    }
+
+
+def suggest_apt_commands(report: Report) -> list[str]:
+    cmds: list[str] = []
+    usn_ready = any(u.get("ready_count") for u in report.usns_apply)
+    usn_awaiting = any(u.get("awaiting_index_count") for u in report.usns_apply)
+    usn_indexed = any(u.get("indexed_not_offered_count") for u in report.usns_apply)
+
+    if report.security_upgradable or usn_ready:
+        cmds.append("sudo apt update && sudo apt upgrade -y")
+    elif usn_awaiting:
+        cmds.append("sudo apt update   # recheck when USN fixed versions hit your mirrors")
+        cmds.append("apt-cache policy <package>   # Candidate should reach USN fixed version")
+    if usn_indexed:
+        cmds.append(
+            "sudo apt -o APT::Get::Always-Include-Phased-Updates=true upgrade"
+        )
+    if report.reboot_required:
+        cmds.append("sudo reboot   # after you schedule a window")
+    return cmds
 
 
 def match_usns(
@@ -248,11 +319,15 @@ def match_usns(
         if not hit:
             skip.append({**n, "reason": "no affected packages installed"})
             continue
-        behind = packages_below_usn_fix(hit, versions, fixed, upgradable_pkg)
+        candidates = apt_candidates(set(hit))
+        behind = packages_below_usn_fix(
+            hit, versions, fixed, upgradable_pkg, candidates
+        )
         if not behind:
             skip.append({**n, "reason": "installed versions at or above USN fixed versions"})
             continue
         cves = detail.get("cves_ids") or []
+        counts = usn_availability_counts(behind)
         apply.append(
             {
                 "id": usn_id,
@@ -263,10 +338,11 @@ def match_usns(
                 "needs_upgrade": True,
                 "packages_behind": behind[:8],
                 "packages_upgradable": sorted(
-                    {b["name"] for b in behind} & upgradable_pkg
+                    b["name"] for b in behind if b.get("state") == "ready"
                 )[:8],
                 "cves": cves[:5],
                 "url": f"https://ubuntu.com/security/notices/{usn_id}",
+                **counts,
             }
         )
     return apply, skip
@@ -290,10 +366,8 @@ def plain_text(report: Report, ai_section: str | None) -> str:
             lines.append(f"• {a}")
         lines.append("")
         lines.append("Suggested:")
-        if report.reboot_required:
-            lines.append("  sudo reboot   # after you schedule a window")
-        if report.security_upgradable or any(u.get("needs_upgrade") for u in report.usns_apply):
-            lines.append("  sudo apt update && sudo apt upgrade -y")
+        for cmd in suggest_apt_commands(report):
+            lines.append(f"  {cmd}")
     else:
         lines.append("Nothing urgent from this scan.")
 
@@ -315,11 +389,24 @@ def plain_text(report: Report, ai_section: str | None) -> str:
         lines.append("")
         lines.append("=== USNs that apply to installed packages ===")
         for u in report.usns_apply:
-            lines.append(f"  {u['id']}: {u['title']} [UPGRADE]")
+            tag = "UPGRADE READY" if u.get("ready_count") else "USN APPLIES"
+            if u.get("awaiting_index_count") and not u.get("ready_count"):
+                tag = "AWAITING APT INDEX"
+            elif u.get("indexed_not_offered_count") and not u.get("ready_count"):
+                tag = "IN INDEX — NOT OFFERED"
+            lines.append(f"  {u['id']}: {u['title']} [{tag}]")
             lines.append(f"    {u['url']}")
             for b in u.get("packages_behind") or []:
+                cand = b.get("candidate", "?")
+                state = b.get("state", "")
+                state_note = {
+                    "ready": "apt upgrade will install",
+                    "awaiting_index": f"apt Candidate {cand} — fix not published on mirror yet",
+                    "indexed_not_offered": f"apt Candidate {cand} — at/above fix but not upgradable",
+                }.get(state, "")
+                suffix = f" ({state_note})" if state_note else ""
                 lines.append(
-                    f"    {b['name']}: installed {b['installed']} → fixed {b['fixed']}"
+                    f"    {b['name']}: installed {b['installed']} → USN fixed {b['fixed']}{suffix}"
                 )
             if u.get("cves"):
                 lines.append(f"    CVEs: {', '.join(u['cves'])}")
@@ -369,17 +456,34 @@ def html_report(report: Report, ai_section: str | None) -> str:
     usn_cards = ""
     for u in report.usns_apply:
         cves = ", ".join(u.get("cves") or [])
+        if u.get("ready_count"):
+            badge = ("upgrade ready", "#dc2626")
+        elif u.get("awaiting_index_count"):
+            badge = ("awaiting apt index", "#d97706")
+        elif u.get("indexed_not_offered_count"):
+            badge = ("in index — check phasing", "#b45309")
+        else:
+            badge = ("review", "#64748b")
+        badge_label, badge_bg = badge
         ver_rows = ""
         for b in u.get("packages_behind") or []:
+            cand = b.get("candidate", "?")
+            state = b.get("state", "")
+            extra = ""
+            if state == "awaiting_index":
+                extra = f" · apt Candidate {esc(cand)}"
+            elif state == "indexed_not_offered":
+                extra = f" · Candidate {esc(cand)} (not in apt upgrade)"
             ver_rows += (
                 f"<li style='font-family:monospace;font-size:12px;'>"
-                f"{esc(b['name'])}: {esc(b['installed'])} → {esc(b['fixed'])}</li>"
+                f"{esc(b['name'])}: {esc(b['installed'])} → USN {esc(b['fixed'])}"
+                f"{extra}</li>"
             )
         usn_cards += f"""
         <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:10px;">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <strong>{esc(u['id'])}</strong>
-            <span style="background:#dc2626;color:#fff;font-size:11px;padding:2px 8px;border-radius:999px;">upgrade</span>
+            <span style="background:{badge_bg};color:#fff;font-size:11px;padding:2px 8px;border-radius:999px;">{esc(badge_label)}</span>
           </div>
           <div style="margin-top:6px;color:#334155;">{esc(u['title'])}</div>
           <ul style="margin:8px 0 0;padding-left:20px;color:#64748b;">{ver_rows}</ul>
@@ -406,12 +510,9 @@ def html_report(report: Report, ai_section: str | None) -> str:
 
     cmd_block = ""
     if report.actions:
-        cmds = []
-        if report.security_upgradable or any(u.get("needs_upgrade") for u in report.usns_apply):
-            cmds.append("sudo apt update && sudo apt upgrade -y")
-        if report.reboot_required:
-            cmds.append("sudo reboot   # schedule a maintenance window")
-        cmd_block = f"""
+        cmds = suggest_apt_commands(report)
+        if cmds:
+            cmd_block = f"""
         <pre style="background:#0f172a;color:#e2e8f0;padding:12px;border-radius:8px;font-size:12px;overflow-x:auto;">{esc(chr(10).join(cmds))}</pre>
         """
 

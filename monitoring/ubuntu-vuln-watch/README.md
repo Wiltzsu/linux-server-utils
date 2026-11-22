@@ -4,6 +4,8 @@ Daily scan on a single Ubuntu host: local apt/kernel snapshot, recent USNs for y
 
 Recent USNs are matched against **installed dpkg versions** and the fixed versions in Ubuntu’s USN JSON (same rules as `dpkg --compare-versions`). Notices you have already patched do not appear in the email.
 
+For each affected package the email compares **apt Candidate** to the USN fixed version and `apt list --upgradable`, so you can tell **upgrade ready** vs **USN applies but fix not in your mirrors yet** vs **fix in indexes but blocked by phasing/holds** (without implying `apt upgrade` will fix everything).
+
 Install on the server (Ansible site-ops uses `/usr/local/src/linux-server-utils/monitoring/ubuntu-vuln-watch`, or pick another path):
 
 ```bash
