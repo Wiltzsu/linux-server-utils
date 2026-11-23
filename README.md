@@ -1,6 +1,6 @@
 ### linux-server-utils
 
-Scripts and notes I use to set up and look after my own Ubuntu servers. Most of it is Bash; the vuln-watch email is built with Python 3. Tested on Ubuntu 24.04, should mostly work on other Debian-based systems (paths like PHP config locations can differ).
+Scripts and notes I use to set up and look after my own Ubuntu servers. The scripts are Bash. The vuln-watch email is built with Python 3. Tested on Ubuntu 24.04, should mostly work on other Debian-based systems (paths like PHP config locations can differ).
 
 ### What's here
 
