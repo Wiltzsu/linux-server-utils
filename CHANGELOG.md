@@ -2,6 +2,67 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0] - 2026-11-23
+
+### Added
+- **`LICENSE`**: MIT license file (the README already said MIT, but there was no file).
+
+### Changed
+- **`README.md`**: Rewritten with a table of every tool, a deployment note and smaller headings.
+- **`backup/restic-vault/README.md`**: Removed a reference to private notes. It was also scrubbed from git history, so commit hashes from 2026-10-31 onwards have changed.
+
+---
+
+## [1.5.4] - 2026-11-22
+
+### Changed
+- **`monitoring/ubuntu-vuln-watch/build_email.py`**: For each affected package, compares apt's candidate version with the USN fix and `apt list --upgradable`, and labels it as upgrade ready, fix not in the apt indexes yet, or held back by phasing/holds/pins. The email no longer implies that `apt upgrade` fixes every USN that applies.
+
+---
+
+## [1.5.3] - 2026-11-13
+
+### Changed
+- **`monitoring/server-monitoring/server-resources.sh`**: Alerts go to `ALERT_EMAIL` (default `root`, forward it in `/etc/aliases`) instead of a placeholder address. Limits can be set from the environment, `MAX_LOAD` defaults to the CPU count, and a lasting problem sends at most one mail per `COOLDOWN` (default 1 hour).
+
+---
+
+## [1.5.2] - 2026-11-02
+
+### Changed
+- **`.github/workflows/sync-servers.yml`**: Syncs to a second server as well.
+- **`monitoring/ubuntu-vuln-watch`**: Docs and email footers point at the install directory instead of old `~/scripts` paths.
+
+---
+
+## [1.5.1] - 2026-11-01
+
+### Changed
+- **`backup/restic-vault`**: Renamed to `restic-backup-vault.sh` and `vault.env` to match the paths used on servers (`/etc/restic/vault.env`).
+- **`backup/database-backup/database-backup.sh`**: Dumps go to `/var/backups/db`; restic defaults and docs updated to match.
+
+---
+
+## [1.5.0] - 2026-10-31
+
+### Added
+- **`monitoring/ubuntu-vuln-watch`**: Daily scan that matches recent Ubuntu security notices against installed package versions and emails only what applies to the host. Optional AI summary step via `analyze_with_cursor.py`.
+- **`backup/restic-vault`**: restic wrapper that copies the MySQL dumps to off-server storage.
+- **`.github/workflows/sync-servers.yml`**: Pushes to `master` update the copy of this repo on the server. Can also be run by hand.
+
+### Removed
+- **`monitoring/php-error-monitoring`**: PHP error alerts are now handled by a log shipper instead.
+
+---
+
+## [1.4.6] - 2026-08-19
+
+### Changed
+- **`README.md`**: Removed sections that repeated the per-tool READMEs.
+- **Docs**: Sentence-case headings, hyphens instead of em dashes, MIT noted only in the root README.
+
+---
+
 ## [1.4.5] - 2026-07-18
 
 ### Added

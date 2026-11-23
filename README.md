@@ -1,17 +1,25 @@
-# Linux server utilities
+### linux-server-utils
 
-This repository is a collection of Linux server-related tools, scripts, and configuration guides used on personal servers and projects.
+Scripts and notes I use to set up and look after my own Ubuntu servers. Most of it is Bash; the vuln-watch email is built with Python 3. Tested on Ubuntu 24.04, should mostly work on other Debian-based systems (paths like PHP config locations can differ).
 
-The goal is to provide a structured, reusable, and documented set of utilities for everyday sysadmin tasks.
+### What's here
 
-## Requirements & compatibility
+| Path | What it does |
+| --- | --- |
+| [monitoring/ubuntu-vuln-watch](monitoring/ubuntu-vuln-watch/README.md) | Daily check of recent Ubuntu security notices against installed package versions. Emails only what actually affects the host, and whether the fix can be installed yet. |
+| [monitoring/server-monitoring](monitoring/server-monitoring/README.md) | Cron script that mails when load, disk or RAM go over a limit, at most once an hour while the problem lasts. |
+| [backup/database-backup](backup/database-backup/README.md) | Timestamped, gzipped `mysqldump`s with local retention. |
+| [backup/restic-vault](backup/restic-vault/README.md) | restic copies of the dumps to off-server storage. |
+| [user/create-user.sh](user/create-user.sh) | New sudo user with generated password and passphrase-protected SSH key. |
+| [user/setup-github-deploy-key.sh](user/setup-github-deploy-key.sh) | Separate passphrase-free key for GitHub Actions deploys. |
+| [web/setup-app-directory.sh](web/setup-app-directory.sh) | App directory under `/var/www` owned by the deploy user and `www-data`. |
+| [web/setup-fastcgi-cache](web/setup-fastcgi-cache/README.md) | nginx FastCGI cache for WordPress/Bedrock sites. |
+| [docs](docs) | Notes on server hardening, UFW, Postfix relay and remote MySQL access. |
 
-- Scripts are written in **Bash**; some tooling (e.g. monitoring email reports) uses **Python 3** on the host
-- Target environment: **Ubuntu/Debian-based systems**
-- Tested on Ubuntu 24.04 LTS
+### Deployment
 
-_Note: Some commands or paths (like PHP config locations) may vary slightly between different distributions._
+Pushing to `master` pulls the latest version onto my servers through a GitHub Actions workflow (`.github/workflows/sync-servers.yml`), so the copy on each host stays in sync with this repo.
 
-## License
+### License
 
 MIT
